@@ -2,7 +2,7 @@ use std::ops::Not;
 
 use crate::{
     api::{
-        rest::{Gateway, Project, Section, Task},
+        rest::{DurationUnit, Gateway, Project, Section, Task},
         tree::Tree,
     },
     config::Config,
@@ -39,6 +39,17 @@ pub struct Params {
     /// can be done until the program is exited from.
     #[arg(short = 'i', long = "interactive")]
     continuous: bool,
+    /// Sort tasks by specific criteria.
+    #[arg(long = "sort-by", value_enum)]
+    sort_by: Option<SortBy>,
+}
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+pub enum SortBy {
+    /// Sort by creation time (oldest first) - useful for finding stale tasks
+    Created,
+    /// Sort by duration (shortest first) - useful for quick wins
+    Duration,
 }
 
 /// List lists the tasks of the current user accessing the gateway with the given filter.
@@ -67,7 +78,7 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
             }
         }
     } else {
-        list_tasks(&state.tasks, &state);
+        list_tasks_with_sort(&state.tasks, &state, params.sort_by.as_ref());
     }
     Ok(())
 }
@@ -190,12 +201,46 @@ async fn filter_list<'a>(state: State<'a>, params: &'_ Params) -> Result<State<'
     Ok(state)
 }
 
-fn list_tasks<'a>(tasks: &'a [Tree<Task>], state: &'a State) {
+
+fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
     let mut tasks = tasks.to_vec();
-    tasks.sort();
+    
+    match sort_by {
+        Some(SortBy::Created) => {
+            // Sort by creation time (oldest first)
+            tasks.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        }
+        Some(SortBy::Duration) => {
+            // Sort by duration (shortest first), then by default sort
+            tasks.sort_by(|a, b| {
+                match (&a.duration, &b.duration) {
+                    (Some(dur_a), Some(dur_b)) => {
+                        // Convert to minutes for comparison
+                        let minutes_a = match dur_a.unit {
+                            DurationUnit::Minute => dur_a.amount,
+                            DurationUnit::Day => dur_a.amount * 24 * 60,
+                        };
+                        let minutes_b = match dur_b.unit {
+                            DurationUnit::Minute => dur_b.amount,
+                            DurationUnit::Day => dur_b.amount * 24 * 60,
+                        };
+                        minutes_a.cmp(&minutes_b)
+                    }
+                    (Some(_), None) => std::cmp::Ordering::Less, // Tasks with duration come first
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.cmp(b), // Fall back to default sort
+                }
+            });
+        }
+        None => {
+            // Default sort
+            tasks.sort();
+        }
+    }
+    
     for task in tasks.iter() {
         println!("{}", state.table_task(task));
-        list_tasks(&task.subitems, state);
+        list_tasks_with_sort(&task.subitems, state, sort_by);
     }
 }
 

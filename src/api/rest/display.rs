@@ -138,6 +138,16 @@ impl std::fmt::Display for TableTask<'_> {
             task.priority,
             task.content,
         )?;
+        
+        // Show task age (days since created)
+        let now = config.override_time.unwrap_or_else(Utc::now);
+        let days_ago = (now - task.created_at).num_days();
+        if days_ago >= 7 {
+            write!(f, " {}({}일 전)",
+                "".if_supports_color(Stream::Stdout, |_| "📅"),
+                days_ago
+            )?;
+        }
         if let Some(due) = &task.due {
             write!(
                 f,
