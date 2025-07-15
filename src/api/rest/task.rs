@@ -43,6 +43,10 @@ pub struct Task {
     pub priority: Priority,
     /// The due date of the Task.
     pub due: Option<DueDate>,
+    /// Deadline for the Task.
+    pub deadline: Option<Deadline>,
+    /// Duration for the Task.
+    pub duration: Option<Duration>,
     /// Links the Task to a URL in the Todoist UI.
     pub url: Url,
     /// How many comments are written for this Task.
@@ -200,6 +204,43 @@ pub struct DueDate {
 /// too late or too soon.
 pub struct DueDateFormatter<'a>(pub &'a DueDate, pub &'a DateTime<Utc>);
 
+/// Deadline object from the Todoist API.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct Deadline {
+    /// Date in format YYYY-MM-DD corrected to user's timezone.
+    pub date: chrono::NaiveDate,
+    /// Language to use for parsing the deadline string.
+    pub lang: Option<String>,
+}
+
+/// Duration object from the Todoist API.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct Duration {
+    /// Amount of time the task will take (positive integer).
+    pub amount: u32,
+    /// Unit of time - either "minute" or "day".
+    pub unit: DurationUnit,
+}
+
+/// Duration unit enum.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum DurationUnit {
+    /// Time unit in minutes.
+    Minute,
+    /// Time unit in days.
+    Day,
+}
+
+impl Display for DurationUnit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            DurationUnit::Minute => write!(f, "minute"),
+            DurationUnit::Day => write!(f, "day"),
+        }
+    }
+}
+
 impl Display for DueDateFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.0.is_recurring {
@@ -280,6 +321,15 @@ pub struct CreateTask {
     pub due: Option<TaskDue>,
     /// If due is [TaskDue::String], this two-letter code optionally specifies the language if it's not english.
     pub due_lang: Option<String>,
+    /// Sets the [`Task::deadline`] on the new [`Task`].
+    #[serde(rename = "deadline_date")]
+    pub deadline_date: Option<String>,
+    /// Language for deadline.
+    pub deadline_lang: Option<String>,
+    /// Sets the [`Task::duration`] on the new [`Task`].
+    pub duration: Option<u32>,
+    /// Unit of time for duration.
+    pub duration_unit: Option<DurationUnit>,
     /// Sets the [`Task::assignee`] on the new [`Task`].
     pub assignee: Option<UserID>,
 }
@@ -329,6 +379,8 @@ impl Task {
             order: 0,
             priority: Priority::default(),
             due: None,
+            deadline: None,
+            duration: None,
             url: "http://localhost".to_string().parse().unwrap(),
             comment_count: 0,
             creator_id: "0".to_string(),

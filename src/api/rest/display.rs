@@ -93,6 +93,12 @@ impl std::fmt::Display for FullTask<'_> {
         if let Some(section) = &section {
             write!(f, "\nSection: {section}")?;
         }
+        if let Some(deadline) = &task.deadline {
+            write!(f, "\nDeadline: {}", deadline.date)?;
+        }
+        if let Some(duration) = &task.duration {
+            write!(f, "\nDuration: {} {}", duration.amount, duration.unit)?;
+        }
         write!(f, "\nComments: {}", task.comment_count)?;
         Ok(())
     }
