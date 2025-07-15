@@ -156,6 +156,26 @@ impl std::fmt::Display for TableTask<'_> {
                     .join(" ")
             )?;
         }
+        if let Some(deadline) = &task.deadline {
+            write!(f, " {}⏰{}", 
+                "".if_supports_color(Stream::Stdout, |_| "📅"),
+                deadline.date.format("%m/%d")
+            )?;
+        }
+        if let Some(duration) = &task.duration {
+            let unit_symbol = match duration.unit {
+                crate::api::rest::task::DurationUnit::Minute => "⏱️",
+                crate::api::rest::task::DurationUnit::Day => "📅",
+            };
+            write!(f, " {}{}{}", 
+                unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
+                duration.amount,
+                match duration.unit {
+                    crate::api::rest::task::DurationUnit::Minute => "m",
+                    crate::api::rest::task::DurationUnit::Day => "d",
+                }
+            )?;
+        }
         if let Some(p) = &project {
             write!(f, " [{}", p.name)?;
             if let Some(s) = &section {
