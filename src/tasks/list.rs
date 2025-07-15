@@ -22,9 +22,9 @@ use super::create;
 pub struct Params {
     #[clap(flatten)]
     filter: filter::Filter,
-    /// Disables interactive mode and simply displays the list.
-    #[arg(short = 'n', long = "nointeractive")]
-    nointeractive: bool,
+    /// Enables interactive mode for task selection.
+    #[arg(long = "select")]
+    interactive: bool,
     #[clap(flatten)]
     project: interactive::Selection<Project>,
     #[clap(flatten)]
@@ -43,7 +43,7 @@ pub struct Params {
 
 /// List lists the tasks of the current user accessing the gateway with the given filter.
 pub async fn list(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
-    if params.continuous && !params.nointeractive {
+    if params.continuous && params.interactive {
         return list_interactive(params, gw, cfg).await;
     }
     match list_action(&params, gw, cfg).await {
@@ -59,15 +59,15 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
         State::fetch_tree(Some(&params.filter.select(cfg)), gw, cfg).await
     }?;
     let state = filter_list(state, params).await?;
-    if params.nointeractive {
-        list_tasks(&state.tasks, &state);
-    } else {
+    if params.interactive {
         match state.select_task()? {
             Some(task) => select_task_option(task, &state, gw).await?,
             None => {
                 println!("No selection was made");
             }
         }
+    } else {
+        list_tasks(&state.tasks, &state);
     }
     Ok(())
 }
