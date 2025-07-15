@@ -41,6 +41,9 @@ cargo fmt
 
 # Check for unused dependencies
 cargo machete
+
+# Use cargo run to check if modification works as expected
+cargo run
 ```
 
 ### Testing with Fixtures

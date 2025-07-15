@@ -40,7 +40,7 @@ fn default_url() -> Option<url::Url> {
 }
 
 /// Default filter when no config override is done.
-const DEFAULT_FILTER: &str = "(today | overdue)";
+const DEFAULT_FILTER: &str = "all";
 
 fn default_filter() -> String {
     DEFAULT_FILTER.to_string()
