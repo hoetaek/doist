@@ -360,6 +360,18 @@ pub struct UpdateTask {
     /// Overwrites [`Task::assignee`] if set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignee: Option<UserID>,
+    /// Sets the deadline on the task.
+    #[serde(rename = "deadline_date", skip_serializing_if = "Option::is_none")]
+    pub deadline_date: Option<String>,
+    /// Language for deadline.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deadline_lang: Option<String>,
+    /// Sets the duration on the task.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+    /// Unit of time for duration.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration_unit: Option<DurationUnit>,
 }
 
 #[cfg(test)]
