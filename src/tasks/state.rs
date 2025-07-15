@@ -138,6 +138,16 @@ impl<'a> State<'a> {
         )
     }
 
+    pub fn table_task_without_project<'s>(&'s self, task: &'s Tree<Task>) -> TableTask<'s> {
+        TableTask(
+            task,
+            None, // No project info to avoid duplication in grouped view
+            self.section(task),
+            self.labels(task),
+            self.config,
+        )
+    }
+
     pub fn full_task<'s>(&'s self, task: &'s Tree<Task>) -> FullTask<'s> {
         FullTask(
             task,
