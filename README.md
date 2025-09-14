@@ -1,6 +1,5 @@
 # doist - Todoist CLI Client
 
-[![Crates.io](https://img.shields.io/crates/v/doist)](https://crates.io/crates/doist)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/hoetaek/doist/ci.yml?branch=main)](https://github.com/hoetaek/doist/actions)
 
 An unofficial [Todoist](https://todoist.com/) API CLI client written in Rust.
@@ -69,11 +68,12 @@ This will allow you to type parts of the output until you select the task you
 want to work with (fuzzy search). Selecting will allow you to select various
 other subcommands, like closing, changing due dates or even editing tasks.
 
-You can also disable interactive mode to pipe use the output somewhere else:
+By default, the output is non-interactive and can be piped or used elsewhere. For interactive mode, use:
 
 ```bash
-doist list --nointeractive
-# Alternatively: `doist l -n`
+doist list --select
+# Or for continuous interactive mode:
+doist list --interactive
 ```
 
 By default all interactive commands have a filter applied to show the most
@@ -181,7 +181,7 @@ doist close "BIG_ID_FROM_API"
 
 ### View details
 
-To view details of tasks and the comments asssociated with a task:
+To view details of tasks and the comments associated with a task:
 
 ```bash
 doist view
@@ -190,7 +190,7 @@ doist view
 
 This accepts the same parameters as `doist list` for task selection.
 
-#### Configuration setup
+## Configuration
 
 ### Disable colors
 
@@ -208,7 +208,7 @@ different default filter in the `~/.config/doist/config.toml` like this:
 
 ```toml
 default_filter="all"
-``````
+```
 
 See the [Todoist article on filtering](https://todoist.com/help/articles/introduction-to-filters)
 for more information.
