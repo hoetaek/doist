@@ -138,12 +138,14 @@ impl std::fmt::Display for TableTask<'_> {
             task.priority,
             task.content,
         )?;
-        
+
         // Show task age (days since created)
         let now = config.override_time.unwrap_or_else(Utc::now);
         let days_ago = (now - task.created_at).num_days();
         if days_ago >= 7 {
-            write!(f, " {}({}일 전)",
+            write!(
+                f,
+                " {}({}일 전)",
                 "".if_supports_color(Stream::Stdout, |_| "📅"),
                 days_ago
             )?;
@@ -167,7 +169,9 @@ impl std::fmt::Display for TableTask<'_> {
             )?;
         }
         if let Some(deadline) = &task.deadline {
-            write!(f, " {}⏰{}", 
+            write!(
+                f,
+                " {}⏰{}",
                 "".if_supports_color(Stream::Stdout, |_| "📅"),
                 deadline.date.format("%m/%d")
             )?;
@@ -177,7 +181,9 @@ impl std::fmt::Display for TableTask<'_> {
                 crate::api::rest::task::DurationUnit::Minute => "⏱️",
                 crate::api::rest::task::DurationUnit::Day => "📅",
             };
-            write!(f, " {}{}{}", 
+            write!(
+                f,
+                " {}{}{}",
                 unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
                 duration.amount,
                 match duration.unit {

@@ -1,4 +1,4 @@
-use std::{ops::Not, collections::HashMap};
+use std::{collections::HashMap, ops::Not};
 
 use crate::{
     api::{
@@ -214,20 +214,29 @@ async fn filter_list<'a>(state: State<'a>, params: &'_ Params) -> Result<State<'
     Ok(state)
 }
 
-
-fn list_tasks_grouped_by_project<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
+fn list_tasks_grouped_by_project<'a>(
+    tasks: &'a [Tree<Task>],
+    state: &'a State,
+    sort_by: Option<&SortBy>,
+) {
     // Group tasks by project
     let mut project_groups: HashMap<ProjectID, Vec<&Tree<Task>>> = HashMap::new();
-    
-    fn collect_tasks<'a>(tasks: &'a [Tree<Task>], groups: &mut HashMap<ProjectID, Vec<&'a Tree<Task>>>) {
+
+    fn collect_tasks<'a>(
+        tasks: &'a [Tree<Task>],
+        groups: &mut HashMap<ProjectID, Vec<&'a Tree<Task>>>,
+    ) {
         for task in tasks {
-            groups.entry(task.project_id.clone()).or_default().push(task);
+            groups
+                .entry(task.project_id.clone())
+                .or_default()
+                .push(task);
             collect_tasks(&task.subitems, groups);
         }
     }
-    
+
     collect_tasks(tasks, &mut project_groups);
-    
+
     // Sort projects by name and display
     let mut sorted_projects: Vec<_> = project_groups.into_iter().collect();
     sorted_projects.sort_by(|a, b| {
@@ -235,21 +244,24 @@ fn list_tasks_grouped_by_project<'a>(tasks: &'a [Tree<Task>], state: &'a State, 
         let name_b = state.projects.get(&b.0).map(|p| &p.name).unwrap_or(&b.0);
         name_a.cmp(name_b)
     });
-    
+
     for (project_id, mut project_tasks) in sorted_projects {
         let project = state.projects.get(&project_id);
         let project_name = project.map(|p| &p.name).unwrap_or(&project_id);
-        
+
         // Count total tasks in this project (including subtasks)
         let total_tasks = count_all_tasks(&project_tasks);
         let visible_tasks = project_tasks.len();
-        
+
         // Print project header
-        println!("\n[{}] ({}/{} tasks)", project_name, visible_tasks, total_tasks);
-        
+        println!(
+            "\n[{}] ({}/{} tasks)",
+            project_name, visible_tasks, total_tasks
+        );
+
         // Sort tasks within the project
         apply_sort(&mut project_tasks, sort_by);
-        
+
         // Display tasks without project name
         for task in project_tasks {
             println!("  {}", state.table_task_without_project(task));
@@ -262,7 +274,10 @@ fn count_all_tasks(tasks: &[&Tree<Task>]) -> usize {
 }
 
 fn count_all_subtasks(task: &Tree<Task>) -> usize {
-    task.subitems.iter().map(|subtask| 1 + count_all_subtasks(subtask)).sum()
+    task.subitems
+        .iter()
+        .map(|subtask| 1 + count_all_subtasks(subtask))
+        .sum()
 }
 
 fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
@@ -271,23 +286,21 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
             tasks.sort_by(|a, b| a.created_at.cmp(&b.created_at));
         }
         Some(SortBy::Duration) => {
-            tasks.sort_by(|a, b| {
-                match (&a.duration, &b.duration) {
-                    (Some(dur_a), Some(dur_b)) => {
-                        let minutes_a = match dur_a.unit {
-                            DurationUnit::Minute => dur_a.amount,
-                            DurationUnit::Day => dur_a.amount * 24 * 60,
-                        };
-                        let minutes_b = match dur_b.unit {
-                            DurationUnit::Minute => dur_b.amount,
-                            DurationUnit::Day => dur_b.amount * 24 * 60,
-                        };
-                        minutes_a.cmp(&minutes_b)
-                    }
-                    (Some(_), None) => std::cmp::Ordering::Less,
-                    (None, Some(_)) => std::cmp::Ordering::Greater,
-                    (None, None) => a.cmp(b),
+            tasks.sort_by(|a, b| match (&a.duration, &b.duration) {
+                (Some(dur_a), Some(dur_b)) => {
+                    let minutes_a = match dur_a.unit {
+                        DurationUnit::Minute => dur_a.amount,
+                        DurationUnit::Day => dur_a.amount * 24 * 60,
+                    };
+                    let minutes_b = match dur_b.unit {
+                        DurationUnit::Minute => dur_b.amount,
+                        DurationUnit::Day => dur_b.amount * 24 * 60,
+                    };
+                    minutes_a.cmp(&minutes_b)
                 }
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (None, None) => a.cmp(b),
             });
         }
         None => {
@@ -298,7 +311,7 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
 
 fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
     let mut tasks = tasks.to_vec();
-    
+
     match sort_by {
         Some(SortBy::Created) => {
             // Sort by creation time (oldest first)
@@ -331,7 +344,7 @@ fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: 
             tasks.sort();
         }
     }
-    
+
     for task in tasks.iter() {
         println!("{}", state.table_task(task));
         list_tasks_with_sort(&task.subitems, state, sort_by);

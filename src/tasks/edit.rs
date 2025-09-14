@@ -3,7 +3,7 @@ use color_eyre::Result;
 use crate::{
     api::{
         self,
-        rest::{Gateway, TaskDue, UpdateTask, DurationUnit},
+        rest::{DurationUnit, Gateway, TaskDue, UpdateTask},
     },
     config::Config,
     labels::{self, LabelSelect},
@@ -77,30 +77,44 @@ pub async fn edit(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
             update.deadline_date = Some(deadline_str);
             update.deadline_lang = Some("en".to_string());
         } else {
-            return Err(color_eyre::eyre::eyre!("Invalid deadline format. Use YYYY-MM-DD format."));
+            return Err(color_eyre::eyre::eyre!(
+                "Invalid deadline format. Use YYYY-MM-DD format."
+            ));
         }
     }
     if let Some(duration_str) = params.duration {
         if update.due.is_none() && !due_provided {
-            return Err(color_eyre::eyre::eyre!("Duration requires a due date. Use --due option when specifying duration."));
+            return Err(color_eyre::eyre::eyre!(
+                "Duration requires a due date. Use --due option when specifying duration."
+            ));
         }
         if let Some((amount_str, unit_str)) = duration_str.split_once(':') {
             if let Ok(amount) = amount_str.parse::<u32>() {
                 if amount == 0 {
-                    return Err(color_eyre::eyre::eyre!("Duration amount must be greater than zero."));
+                    return Err(color_eyre::eyre::eyre!(
+                        "Duration amount must be greater than zero."
+                    ));
                 }
                 let unit = match unit_str {
                     "minute" => DurationUnit::Minute,
                     "day" => DurationUnit::Day,
-                    _ => return Err(color_eyre::eyre::eyre!("Invalid duration unit. Use 'minute' or 'day'.")),
+                    _ => {
+                        return Err(color_eyre::eyre::eyre!(
+                            "Invalid duration unit. Use 'minute' or 'day'."
+                        ));
+                    }
                 };
                 update.duration = Some(amount);
                 update.duration_unit = Some(unit);
             } else {
-                return Err(color_eyre::eyre::eyre!("Invalid duration amount. Must be a positive integer."));
+                return Err(color_eyre::eyre::eyre!(
+                    "Invalid duration amount. Must be a positive integer."
+                ));
             }
         } else {
-            return Err(color_eyre::eyre::eyre!("Invalid duration format. Use '<amount>:<unit>' format (e.g., '30:minute' or '2:day')."));
+            return Err(color_eyre::eyre::eyre!(
+                "Invalid duration format. Use '<amount>:<unit>' format (e.g., '30:minute' or '2:day')."
+            ));
         }
     }
     gw.update(&params.task.task_id(gw, cfg).await?, &update)
