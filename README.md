@@ -35,7 +35,7 @@ cargo install doist
 For OSX users, a homebrew tap is available:
 
 ```bash
-brew install chaosteil/tap/doist
+brew install hoetaek/tap/doist
 ```
 
 ### Build from source
