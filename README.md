@@ -1,14 +1,14 @@
 # doist - Todoist CLI Client
 
 [![Crates.io](https://img.shields.io/crates/v/doist)](https://crates.io/crates/doist)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/chaosteil/doist/ci.yml?branch=main)](https://github.com/chaosteil/doist/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/hoetaek/doist/ci.yml?branch=main)](https://github.com/hoetaek/doist/actions)
 
 An unofficial [Todoist](https://todoist.com/) API CLI client written in Rust.
 
 ## About
 
 <p align="center">
-  <img width="1200" src="https://raw.githubusercontent.com/chaosteil/doist/main/vhs/doist.gif">
+  <img width="1200" src="https://raw.githubusercontent.com/hoetaek/doist/main/vhs/doist.gif">
 </p>
 
 This is an unofficial Todoist CLI that focuses on being easy to use. It is
@@ -17,7 +17,7 @@ more as we go along.
 
 ## Installation
 
-Check out the [latest releases](https://github.com/chaosteil/doist/releases) for
+Check out the [latest releases](https://github.com/hoetaek/doist/releases) for
 various pre-built binaries or follow the following steps:
 
 ### Install from crates.io
@@ -42,7 +42,7 @@ brew install hoetaek/tap/doist
 
 ```bash
 # Install Rust first: https://www.rust-lang.org/tools/install
-git clone git@github.com:chaosteil/doist
+git clone git@github.com:hoetaek/doist
 cd doist
 cargo build --release
 ./target/release/doist
