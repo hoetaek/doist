@@ -20,16 +20,6 @@ more as we go along.
 Check out the [latest releases](https://github.com/hoetaek/doist/releases) for
 various pre-built binaries or follow the following steps:
 
-### Install from crates.io
-
-You can install via cargo install:
-
-```bash
-# Install Rust first: https://www.rust-lang.org/tools/install
-cargo install doist
-# Binary now available in $HOME/.cargo/bin/doist
-```
-
 ### Homebrew
 
 For OSX users, a homebrew tap is available:

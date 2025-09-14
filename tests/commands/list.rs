@@ -6,11 +6,7 @@ use predicates::prelude::*;
 
 #[tokio::test]
 async fn list() -> Result<()> {
-    for test in &[
-        vec!["list", "--nointeractive"],
-        vec!["l", "--nointeractive"],
-        vec!["--nointeractive"],
-    ] {
+    for test in &[vec!["list"], vec!["l"], vec![]] {
         let cmd = Tool::init().await?;
 
         mocks::mock_tasks(&cmd, 1).await;
@@ -45,7 +41,6 @@ async fn expand() -> Result<()> {
     let mut command = cmd.cmd()?;
     command
         .arg("-e")
-        .arg("--nointeractive")
         .assert()
         .success()
         .stdout(predicate::eq(super::fixtures::TASK_EXPAND_OUTPUT));
