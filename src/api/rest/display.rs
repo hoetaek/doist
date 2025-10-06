@@ -93,15 +93,15 @@ impl std::fmt::Display for FullTask<'_> {
         if let Some(section) = &section {
             write!(f, "\nSection: {section}")?;
         }
-        if let Some(deadline) = &task.deadline {
-            if let Some(date) = deadline.date() {
-                write!(f, "\nDeadline: {}", date)?;
-            }
+        if let Some(deadline) = &task.deadline
+            && let Some(date) = deadline.date()
+        {
+            write!(f, "\nDeadline: {}", date)?;
         }
-        if let Some(duration) = &task.duration {
-            if let (Some(amount), Some(unit)) = (duration.amount(), duration.unit()) {
-                write!(f, "\nDuration: {} {}", amount, unit)?;
-            }
+        if let Some(duration) = &task.duration
+            && let (Some(amount), Some(unit)) = (duration.amount(), duration.unit())
+        {
+            write!(f, "\nDuration: {} {}", amount, unit)?;
         }
         write!(f, "\nComments: {}", task.comment_count)?;
         Ok(())
@@ -178,33 +178,33 @@ impl std::fmt::Display for TableTask<'_> {
                     .join(" ")
             )?;
         }
-        if let Some(deadline) = &task.deadline {
-            if let Some(date) = deadline.date() {
-                write!(
-                    f,
-                    " {}⏰{}",
-                    "".if_supports_color(Stream::Stdout, |_| "📅"),
-                    date.format("%m/%d")
-                )?;
-            }
+        if let Some(deadline) = &task.deadline
+            && let Some(date) = deadline.date()
+        {
+            write!(
+                f,
+                " {}⏰{}",
+                "".if_supports_color(Stream::Stdout, |_| "📅"),
+                date.format("%m/%d")
+            )?;
         }
-        if let Some(duration) = &task.duration {
-            if let (Some(amount), Some(unit)) = (duration.amount(), duration.unit()) {
-                let unit_symbol = match unit {
-                    crate::api::rest::task::DurationUnit::Minute => "⏱️",
-                    crate::api::rest::task::DurationUnit::Day => "📅",
-                };
-                write!(
-                    f,
-                    " {}{}{}",
-                    unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
-                    amount,
-                    match unit {
-                        crate::api::rest::task::DurationUnit::Minute => "m",
-                        crate::api::rest::task::DurationUnit::Day => "d",
-                    }
-                )?;
-            }
+        if let Some(duration) = &task.duration
+            && let (Some(amount), Some(unit)) = (duration.amount(), duration.unit())
+        {
+            let unit_symbol = match unit {
+                crate::api::rest::task::DurationUnit::Minute => "⏱️",
+                crate::api::rest::task::DurationUnit::Day => "📅",
+            };
+            write!(
+                f,
+                " {}{}{}",
+                unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
+                amount,
+                match unit {
+                    crate::api::rest::task::DurationUnit::Minute => "m",
+                    crate::api::rest::task::DurationUnit::Day => "d",
+                }
+            )?;
         }
         if let Some(p) = &project {
             write!(f, " [{}", p.name)?;
@@ -213,16 +213,16 @@ impl std::fmt::Display for TableTask<'_> {
             }
             write!(f, "]")?;
         }
-        if let Some(completed_at) = &task.completed_at {
-            if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(completed_at) {
-                let formatted = dt.format("%m/%d %H:%M");
-                write!(
-                    f,
-                    " {}{}",
-                    "".if_supports_color(Stream::Stdout, |_| "✅ "),
-                    formatted
-                )?;
-            }
+        if let Some(completed_at) = &task.completed_at
+            && let Ok(dt) = chrono::DateTime::parse_from_rfc3339(completed_at)
+        {
+            let formatted = dt.format("%m/%d %H:%M");
+            write!(
+                f,
+                " {}{}",
+                "".if_supports_color(Stream::Stdout, |_| "✅ "),
+                formatted
+            )?;
         }
         Ok(())
     }

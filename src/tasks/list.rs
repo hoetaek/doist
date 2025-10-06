@@ -89,22 +89,20 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
                 println!("No selection was made");
             }
         }
+    } else if let Some(GroupBy::Project) = params.group_by {
+        list_tasks_grouped_by_project(
+            &state.tasks,
+            &state,
+            params.sort_by.as_ref(),
+            params.show_id,
+        );
     } else {
-        if let Some(GroupBy::Project) = params.group_by {
-            list_tasks_grouped_by_project(
-                &state.tasks,
-                &state,
-                params.sort_by.as_ref(),
-                params.show_id,
-            );
-        } else {
-            list_tasks_with_sort(
-                &state.tasks,
-                &state,
-                params.sort_by.as_ref(),
-                params.show_id,
-            );
-        }
+        list_tasks_with_sort(
+            &state.tasks,
+            &state,
+            params.sort_by.as_ref(),
+            params.show_id,
+        );
     }
     Ok(())
 }
@@ -320,7 +318,7 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
             });
         }
         None => {
-            tasks.sort_by(|a, b| a.cmp(b));
+            tasks.sort();
         }
     }
 }
