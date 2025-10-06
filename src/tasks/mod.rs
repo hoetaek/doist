@@ -2,6 +2,7 @@
 pub mod add;
 pub mod close;
 pub mod comment;
+pub mod completed;
 pub mod create;
 pub mod edit;
 mod filter;

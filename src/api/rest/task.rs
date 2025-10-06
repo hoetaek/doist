@@ -569,3 +569,15 @@ impl Task {
         }
     }
 }
+
+/// Response for completed tasks by due date endpoint.
+///
+/// API v1 returns `{items: [...], next_cursor: "..."}` instead of `{results: [...], next_cursor: "..."}`.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompletedTasksResponse {
+    /// The list of completed tasks.
+    pub items: Vec<Task>,
+    /// Cursor for fetching the next page (if any).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}

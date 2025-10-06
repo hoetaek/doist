@@ -214,7 +214,7 @@ async fn filter_list<'a>(state: State<'a>, params: &'_ Params) -> Result<State<'
     Ok(state)
 }
 
-fn list_tasks_grouped_by_project<'a>(
+pub fn list_tasks_grouped_by_project<'a>(
     tasks: &'a [Tree<Task>],
     state: &'a State,
     sort_by: Option<&SortBy>,
@@ -311,7 +311,7 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
     }
 }
 
-fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
+pub fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
     let mut tasks = tasks.to_vec();
 
     match sort_by {

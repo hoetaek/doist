@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::{
     config::Config,
     labels, projects, sections,
-    tasks::{add, close, comment, create, edit, list, view},
+    tasks::{add, close, comment, completed, create, edit, list, view},
 };
 use clap::{Args, Parser, Subcommand};
 use color_eyre::Result;
@@ -61,6 +61,9 @@ enum AuthCommands {
     /// Add a comment on a task.
     #[command(visible_alias = "C")]
     Comment(comment::Params),
+    /// Lists completed tasks by completion date (default, up to 3 months) or due date (--by-due-date, up to 6 weeks).
+    #[command(visible_alias = "comp")]
+    Completed(completed::Params),
 
     /// Manages projects.
     #[command(visible_alias = "p")]
@@ -170,6 +173,7 @@ impl Arguments {
                         AuthCommands::Close(p) => close::close(p, &gw, &cfg).await?,
                         AuthCommands::View(p) => view::view(p, &gw, &cfg).await?,
                         AuthCommands::Comment(p) => comment::comment(p, &gw, &cfg).await?,
+                        AuthCommands::Completed(p) => completed::completed(p, &gw, &cfg).await?,
                         AuthCommands::Projects(p) => match p.command {
                             Some(p) => match p {
                                 ProjectCommands::List(p) => projects::list::list(p, &gw).await?,
