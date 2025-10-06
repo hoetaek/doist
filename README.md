@@ -2,7 +2,7 @@
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/hoetaek/doist/ci.yml?branch=main)](https://github.com/hoetaek/doist/actions)
 
-An unofficial [Todoist](https://todoist.com/) API CLI client written in Rust.
+An unofficial [Todoist](https://todoist.com/) API v1 CLI client written in Rust.
 
 ## About
 
@@ -189,6 +189,45 @@ doist view
 ```
 
 This accepts the same parameters as `doist list` for task selection.
+
+### Completed tasks
+
+View tasks that you've completed within a date range:
+
+```bash
+# View today's completed tasks (default)
+doist completed
+# Alternatively: `doist comp`
+```
+
+Convenient date flags are available:
+
+```bash
+doist completed --today           # Today's completed tasks
+doist completed --yesterday       # Yesterday's completed tasks
+doist completed --this-week       # This week (Mon-today)
+doist completed --last-week       # Last week (Mon-Sun)
+doist completed --this-month      # This month (1st-today)
+```
+
+You can also specify custom date ranges:
+
+```bash
+doist completed --since 2025-10-01 --until 2025-10-06
+```
+
+By default, tasks are filtered by completion date. To filter by due date instead:
+
+```bash
+doist completed --today --by-due-date
+```
+
+Completed tasks can be filtered and grouped like regular tasks:
+
+```bash
+doist completed --this-week --group-by project
+doist completed --today --project work
+```
 
 ## Configuration
 
