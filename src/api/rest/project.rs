@@ -11,7 +11,7 @@ pub type ProjectSyncID = String;
 
 /// Project as described by the Todoist API.
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v1/#projects).
+/// Taken from the [Developer Documentation](https://developer.todoist.com/api/v1/#tag/Projects).
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Clone)]
 pub struct Project {
@@ -86,7 +86,7 @@ fn default_project_url() -> Url {
 
 /// ViewStyle for viewing of the project in different clients.
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v2/#projects).
+/// Taken from the [Developer Documentation](https://developer.todoist.com/api/v1/#tag/Projects).
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum ViewStyle {

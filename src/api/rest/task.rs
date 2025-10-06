@@ -18,7 +18,7 @@ pub type UserID = String;
 
 /// Task describes a Task from the Todoist API.
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v1/#tasks).
+/// Taken from the [Developer Documentation](https://developer.todoist.com/api/v1/#tag/Tasks).
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 pub struct Task {
     /// Unique ID of a Task.

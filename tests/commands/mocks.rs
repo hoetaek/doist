@@ -29,18 +29,6 @@ pub async fn mock_tasks_all(tool: &Tool, times: u64) {
     .await
 }
 
-pub async fn mock_tasks_partial(tool: &Tool, times: u64) {
-    mock_http(
-        tool,
-        "GET",
-        "/api/v1/tasks",
-        200,
-        super::fixtures::TASKS_PARTIAL,
-        times,
-    )
-    .await
-}
-
 pub async fn mock_labels(tool: &Tool, times: u64) {
     mock_http(
         tool,

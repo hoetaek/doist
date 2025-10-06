@@ -417,7 +417,6 @@ enum EditOptions {
 }
 
 async fn edit_task(task: &Tree<Task>, gw: &Gateway, cfg: &Config) -> Result<()> {
-    // edit::edit(edit::Params { id: task.task.id }, gw).await?,
     let result = match make_selection(EditOptions::VARIANTS)? {
         Some(index) => EditOptions::from_repr(index).unwrap(),
         None => {

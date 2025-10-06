@@ -35,7 +35,7 @@ pub enum ThreadID {
 
 /// Comment describes a Comment from the Todoist API.
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v1/#comments)
+/// Taken from the [Developer Documentation](https://developer.todoist.com/api/v1/#tag/Comments)
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Comment {
     /// The unique ID of a comment.
