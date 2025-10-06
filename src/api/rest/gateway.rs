@@ -930,15 +930,7 @@ mod test {
 
         let gw = gateway("", &mock_server);
         let response = gw
-            .completed_tasks_by_due_date(
-                "2025-09-01",
-                "2025-10-06",
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
+            .completed_tasks_by_due_date("2025-09-01", "2025-10-06", None, None, None, None, None)
             .await
             .unwrap();
 

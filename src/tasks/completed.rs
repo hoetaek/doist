@@ -101,14 +101,8 @@ pub async fn completed(params: Params, gw: &Gateway, cfg: &Config) -> Result<()>
     let projects = gw.projects().await?;
     let sections = gw.sections().await?;
 
-    let project_id = params
-        .project
-        .optional(&projects)?
-        .map(|p| p.id.clone());
-    let section_id = params
-        .section
-        .optional(&sections)?
-        .map(|s| s.id.clone());
+    let project_id = params.project.optional(&projects)?.map(|p| p.id.clone());
+    let section_id = params.section.optional(&sections)?.map(|s| s.id.clone());
 
     let mut all_tasks = Vec::new();
     let mut cursor: Option<String> = None;
@@ -181,7 +175,7 @@ pub async fn completed(params: Params, gw: &Gateway, cfg: &Config) -> Result<()>
 /// Calculates the date range based on convenience flags or uses provided dates.
 /// If no flags or dates are provided, defaults to today.
 fn calculate_date_range(params: &Params) -> Result<(String, String)> {
-    use chrono::{Datelike, Local, NaiveDate, Duration};
+    use chrono::{Datelike, Duration, Local, NaiveDate};
 
     let now = Local::now();
     let today = now.date_naive();
@@ -295,8 +289,7 @@ async fn display_completed_tasks(
         Tree::from_items(tasks.to_vec()).wrap_err("failed to build task tree")?;
 
     // Fetch related data for display
-    let (projects, sections, labels) =
-        tokio::try_join!(gw.projects(), gw.sections(), gw.labels())?;
+    let (projects, sections, labels) = tokio::try_join!(gw.projects(), gw.sections(), gw.labels())?;
 
     let state = State {
         tasks: tasks_tree,

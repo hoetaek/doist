@@ -311,7 +311,11 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
     }
 }
 
-pub fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: Option<&SortBy>) {
+pub fn list_tasks_with_sort<'a>(
+    tasks: &'a [Tree<Task>],
+    state: &'a State,
+    sort_by: Option<&SortBy>,
+) {
     let mut tasks = tasks.to_vec();
 
     match sort_by {
