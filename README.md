@@ -229,6 +229,14 @@ doist completed --this-week --group-by project
 doist completed --today --project work
 ```
 
+**New in v0.4.1:** Completed tasks now display completion time in a readable format (MM/DD HH:MM). Task IDs are hidden by default for cleaner output - use `--show-id` to display them when needed.
+
+```bash
+doist completed --today              # Shows completion time, hides task IDs
+doist completed --today --show-id    # Shows both completion time and task IDs
+doist list --show-id                 # Also works with list command
+```
+
 ## Configuration
 
 ### Disable colors
