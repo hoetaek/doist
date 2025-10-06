@@ -17,18 +17,21 @@ projects = json_read("projects.json")
 sections = json_read("sections.json")
 
 url_map = {
-    "/rest/v2/tasks": {
+    "/api/v1/tasks": {
         "/": tasks,
-        "?filter=%28today+%7C+overdue%29": tasks,
         "/7000003": tasks[3]
     },
-    "/rest/v2/labels": {
+    "/api/v1/tasks/filter": {
+        "/": tasks,
+        "?query=%28today+%7C+overdue%29": tasks,
+    },
+    "/api/v1/labels": {
         "/": labels,
     },
-    "/rest/v2/projects": {
+    "/api/v1/projects": {
         "/": projects,
     },
-    "/rest/v2/sections": {
+    "/api/v1/sections": {
         "/": sections,
     },
 }
@@ -48,10 +51,10 @@ for k, v in url_map.items():
 
 
 def filter_completed():
-    for k, v in url_map["/rest/v2/tasks"].items():
+    for k, v in url_map["/api/v1/tasks/filter"].items():
         if not isinstance(v, list):
             continue
-        url_map["/rest/v2/tasks"][k] = \
+        url_map["/api/v1/tasks/filter"][k] = \
             list(filter(lambda t: t["is_completed"] == False, tasks))
 
 

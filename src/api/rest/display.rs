@@ -21,7 +21,7 @@ impl std::fmt::Display for FullComment<'_> {
         writeln!(
             f,
             "Attachment: {}",
-            if comment.attachment.is_some() {
+            if comment.file_attachment.is_some() {
                 "Yes"
             } else {
                 "No"
@@ -94,10 +94,14 @@ impl std::fmt::Display for FullTask<'_> {
             write!(f, "\nSection: {section}")?;
         }
         if let Some(deadline) = &task.deadline {
-            write!(f, "\nDeadline: {}", deadline.date)?;
+            if let Some(date) = deadline.date() {
+                write!(f, "\nDeadline: {}", date)?;
+            }
         }
         if let Some(duration) = &task.duration {
-            write!(f, "\nDuration: {} {}", duration.amount, duration.unit)?;
+            if let (Some(amount), Some(unit)) = (duration.amount(), duration.unit()) {
+                write!(f, "\nDuration: {} {}", amount, unit)?;
+            }
         }
         write!(f, "\nComments: {}", task.comment_count)?;
         Ok(())
@@ -169,28 +173,32 @@ impl std::fmt::Display for TableTask<'_> {
             )?;
         }
         if let Some(deadline) = &task.deadline {
-            write!(
-                f,
-                " {}⏰{}",
-                "".if_supports_color(Stream::Stdout, |_| "📅"),
-                deadline.date.format("%m/%d")
-            )?;
+            if let Some(date) = deadline.date() {
+                write!(
+                    f,
+                    " {}⏰{}",
+                    "".if_supports_color(Stream::Stdout, |_| "📅"),
+                    date.format("%m/%d")
+                )?;
+            }
         }
         if let Some(duration) = &task.duration {
-            let unit_symbol = match duration.unit {
-                crate::api::rest::task::DurationUnit::Minute => "⏱️",
-                crate::api::rest::task::DurationUnit::Day => "📅",
-            };
-            write!(
-                f,
-                " {}{}{}",
-                unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
-                duration.amount,
-                match duration.unit {
-                    crate::api::rest::task::DurationUnit::Minute => "m",
-                    crate::api::rest::task::DurationUnit::Day => "d",
-                }
-            )?;
+            if let (Some(amount), Some(unit)) = (duration.amount(), duration.unit()) {
+                let unit_symbol = match unit {
+                    crate::api::rest::task::DurationUnit::Minute => "⏱️",
+                    crate::api::rest::task::DurationUnit::Day => "📅",
+                };
+                write!(
+                    f,
+                    " {}{}{}",
+                    unit_symbol.if_supports_color(Stream::Stdout, |_| "⏱️"),
+                    amount,
+                    match unit {
+                        crate::api::rest::task::DurationUnit::Minute => "m",
+                        crate::api::rest::task::DurationUnit::Day => "d",
+                    }
+                )?;
+            }
         }
         if let Some(p) = &project {
             write!(f, " [{}", p.name)?;

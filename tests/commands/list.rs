@@ -32,8 +32,8 @@ async fn list() -> Result<()> {
 async fn expand() -> Result<()> {
     let cmd = Tool::init().await?;
 
-    mocks::mock_tasks_all(&cmd, 1).await;
-    mocks::mock_tasks_partial(&cmd, 1).await;
+    // fetch_full_tree calls gw.tasks twice with "all" filter
+    mocks::mock_tasks_all(&cmd, 2).await;
     mocks::mock_labels(&cmd, 1).await;
     mocks::mock_projects(&cmd, 1).await;
     mocks::mock_sections(&cmd, 1).await;

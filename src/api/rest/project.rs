@@ -11,7 +11,7 @@ pub type ProjectSyncID = String;
 
 /// Project as described by the Todoist API.
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v2/#projects).
+/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v1/#projects).
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Clone)]
 pub struct Project {
@@ -21,24 +21,67 @@ pub struct Project {
     pub parent_id: Option<ProjectID>,
     /// The name of the Project. Displayed in the project list in the UI.
     pub name: String,
-    /// How many project comments.
-    pub comment_count: usize,
     /// Color as used by the Todoist UI.
     pub color: String,
     /// Whether the project is shared with someone else.
     pub is_shared: bool,
-    /// Project order under the same parent.
+    /// Project order under the same parent (API v1 uses "child_order").
+    #[serde(alias = "child_order", default)]
     pub order: isize,
-    /// This marks the project as the initial Inbox project if it exists.
+    /// This marks the project as the initial Inbox project if it exists (API v1 uses "inbox_project").
+    #[serde(alias = "inbox_project", default)]
     pub is_inbox_project: bool,
-    /// This markes the project as a TeamInbox project if it exists.
-    pub is_team_inbox: bool,
     /// Toggle to mark this project as a favorite.
     pub is_favorite: bool,
-    /// URL to the Todoist UI.
-    pub url: Url,
     /// View style to show in todoist clients.
+    #[serde(default)]
     pub view_style: ViewStyle,
+    /// Whether tasks can be assigned in this project.
+    #[serde(default)]
+    pub can_assign_tasks: bool,
+    /// User ID of the person who created the project.
+    #[serde(default)]
+    pub creator_uid: Option<String>,
+    /// When the project was created.
+    #[serde(default)]
+    pub created_at: Option<String>,
+    /// Whether the project is archived.
+    #[serde(default)]
+    pub is_archived: bool,
+    /// Whether the project is deleted.
+    #[serde(default)]
+    pub is_deleted: bool,
+    /// Whether the project is frozen.
+    #[serde(default)]
+    pub is_frozen: bool,
+    /// When the project was last updated.
+    #[serde(default)]
+    pub updated_at: Option<String>,
+    /// Default ordering.
+    #[serde(default)]
+    pub default_order: Option<isize>,
+    /// Project description.
+    #[serde(default)]
+    pub description: Option<String>,
+    /// Public key for shared projects.
+    #[serde(default)]
+    pub public_key: Option<String>,
+    /// Whether the project is collapsed.
+    #[serde(default)]
+    pub is_collapsed: bool,
+    /// URL to the Todoist UI (optional in v1).
+    #[serde(default = "default_project_url")]
+    pub url: Url,
+    /// This markes the project as a TeamInbox project if it exists (removed from v1, kept for compatibility).
+    #[serde(default)]
+    pub is_team_inbox: bool,
+    /// How many project comments (removed from v1, kept for compatibility).
+    #[serde(default)]
+    pub comment_count: usize,
+}
+
+fn default_project_url() -> Url {
+    "http://localhost".parse().unwrap()
 }
 
 /// ViewStyle for viewing of the project in different clients.
@@ -117,15 +160,26 @@ impl Project {
             id: id.to_string(),
             name: name.to_string(),
             parent_id: None,
-            comment_count: 0,
             color: "".to_string(),
             is_shared: false,
             order: 0,
             is_inbox_project: false,
-            is_team_inbox: false,
             is_favorite: false,
-            url: "http://localhost".to_string().parse().unwrap(),
             view_style: Default::default(),
+            can_assign_tasks: false,
+            creator_uid: None,
+            created_at: None,
+            is_archived: false,
+            is_deleted: false,
+            is_frozen: false,
+            updated_at: None,
+            default_order: None,
+            description: None,
+            public_key: None,
+            is_collapsed: false,
+            url: "http://localhost".to_string().parse().unwrap(),
+            is_team_inbox: false,
+            comment_count: 0,
         }
     }
 }

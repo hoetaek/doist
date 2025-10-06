@@ -33,8 +33,8 @@ pub async fn close(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
     let task = gw.task(&id).await?;
     if !task.is_completed {
         if let Some(due) = task.due {
-            if let Some(exact) = due.exact {
-                println!("next due date: {}", exact.datetime);
+            if let Some(exact) = due.exact_datetime() {
+                println!("next due date: {}", exact);
             } else {
                 println!("next due date: {}", due.date);
             }

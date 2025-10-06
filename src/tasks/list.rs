@@ -288,13 +288,15 @@ fn apply_sort(tasks: &mut Vec<&Tree<Task>>, sort_by: Option<&SortBy>) {
         Some(SortBy::Duration) => {
             tasks.sort_by(|a, b| match (&a.duration, &b.duration) {
                 (Some(dur_a), Some(dur_b)) => {
-                    let minutes_a = match dur_a.unit {
-                        DurationUnit::Minute => dur_a.amount,
-                        DurationUnit::Day => dur_a.amount * 24 * 60,
+                    let minutes_a = match (dur_a.amount(), dur_a.unit()) {
+                        (Some(amount), Some(DurationUnit::Minute)) => amount,
+                        (Some(amount), Some(DurationUnit::Day)) => amount * 24 * 60,
+                        _ => 0,
                     };
-                    let minutes_b = match dur_b.unit {
-                        DurationUnit::Minute => dur_b.amount,
-                        DurationUnit::Day => dur_b.amount * 24 * 60,
+                    let minutes_b = match (dur_b.amount(), dur_b.unit()) {
+                        (Some(amount), Some(DurationUnit::Minute)) => amount,
+                        (Some(amount), Some(DurationUnit::Day)) => amount * 24 * 60,
+                        _ => 0,
                     };
                     minutes_a.cmp(&minutes_b)
                 }
@@ -323,13 +325,15 @@ fn list_tasks_with_sort<'a>(tasks: &'a [Tree<Task>], state: &'a State, sort_by: 
                 match (&a.duration, &b.duration) {
                     (Some(dur_a), Some(dur_b)) => {
                         // Convert to minutes for comparison
-                        let minutes_a = match dur_a.unit {
-                            DurationUnit::Minute => dur_a.amount,
-                            DurationUnit::Day => dur_a.amount * 24 * 60,
+                        let minutes_a = match (dur_a.amount(), dur_a.unit()) {
+                            (Some(amount), Some(DurationUnit::Minute)) => amount,
+                            (Some(amount), Some(DurationUnit::Day)) => amount * 24 * 60,
+                            _ => 0,
                         };
-                        let minutes_b = match dur_b.unit {
-                            DurationUnit::Minute => dur_b.amount,
-                            DurationUnit::Day => dur_b.amount * 24 * 60,
+                        let minutes_b = match (dur_b.amount(), dur_b.unit()) {
+                            (Some(amount), Some(DurationUnit::Minute)) => amount,
+                            (Some(amount), Some(DurationUnit::Day)) => amount * 24 * 60,
+                            _ => 0,
                         };
                         minutes_a.cmp(&minutes_b)
                     }

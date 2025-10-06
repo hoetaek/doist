@@ -55,7 +55,11 @@ pub async fn add(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
         priority: params.priority.map(|p| p.into()),
         project_id: project.map(|p| p.id.clone()),
         section_id: section.map(|s| s.id.clone()),
-        labels: labels.iter().map(|l| l.name.clone()).collect(),
+        labels: if labels.is_empty() {
+            None
+        } else {
+            Some(labels.iter().map(|l| l.name.clone()).collect())
+        },
         ..Default::default()
     };
     if let Some(due) = params.due {
@@ -64,7 +68,6 @@ pub async fn add(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
     if let Some(deadline_str) = params.deadline {
         if chrono::NaiveDate::parse_from_str(&deadline_str, "%Y-%m-%d").is_ok() {
             create.deadline_date = Some(deadline_str);
-            create.deadline_lang = Some("en".to_string());
         } else {
             return Err(color_eyre::eyre::eyre!(
                 "Invalid deadline format. Use YYYY-MM-DD format."
@@ -106,15 +109,14 @@ pub async fn add(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
             ));
         }
     }
-    let labels = if !create.labels.is_empty() {
+    let labels = if let Some(ref label_names) = create.labels {
         let mut labels: HashMap<_, _> = gw
             .labels()
             .await?
             .into_iter()
             .map(|label| (label.name.clone(), label))
             .collect();
-        create
-            .labels
+        label_names
             .iter()
             .filter_map(|l| labels.remove(l))
             .collect()

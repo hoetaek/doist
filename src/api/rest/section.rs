@@ -8,17 +8,39 @@ pub type SectionID = String;
 
 /// Section describes a subsection of a [`super::Project`].
 ///
-/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v2/#sections).
+/// Taken from the [Developer Documentation](https://developer.todoist.com/rest/v1/#sections).
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 pub struct Section {
     /// The unique ID of this section.
     pub id: SectionID,
     /// Project ID that this section belongs to.
     pub project_id: ProjectID,
-    /// Position of the section amonst sections from the same project.
+    /// Position of the section amonst sections from the same project (API v1 uses "section_order").
+    #[serde(alias = "section_order", default)]
     pub order: isize,
     /// The actual name of the section.
     pub name: String,
+    /// User ID of the person who created the section.
+    #[serde(default)]
+    pub user_id: Option<String>,
+    /// When the section was created.
+    #[serde(default)]
+    pub added_at: Option<String>,
+    /// When the section was last updated.
+    #[serde(default)]
+    pub updated_at: Option<String>,
+    /// When the section was archived.
+    #[serde(default)]
+    pub archived_at: Option<String>,
+    /// Whether the section is archived.
+    #[serde(default)]
+    pub is_archived: bool,
+    /// Whether the section is deleted.
+    #[serde(default)]
+    pub is_deleted: bool,
+    /// Whether the section is collapsed.
+    #[serde(default)]
+    pub is_collapsed: bool,
 }
 
 impl Ord for Section {
@@ -71,6 +93,13 @@ impl Section {
             project_id: project_id.to_string(),
             name: name.to_string(),
             order: 0,
+            user_id: None,
+            added_at: None,
+            updated_at: None,
+            archived_at: None,
+            is_archived: false,
+            is_deleted: false,
+            is_collapsed: false,
         }
     }
 }
