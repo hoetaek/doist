@@ -76,7 +76,10 @@ impl<'a> State<'a> {
         let items = self.tasks.flat_tree();
         let result = interactive::select(
             "Select task",
-            &items.iter().map(|t| self.table_task(t)).collect::<Vec<_>>(),
+            &items
+                .iter()
+                .map(|t| self.table_task(t, true))
+                .collect::<Vec<_>>(),
         )?;
         Ok(result.map(|index| items[index]))
     }
@@ -87,7 +90,7 @@ impl<'a> State<'a> {
             "Select task",
             &[format!("{} {}", ">".green(), "Action...".bold())]
                 .into_iter()
-                .chain(items.iter().map(|t| self.table_task(t).to_string()))
+                .chain(items.iter().map(|t| self.table_task(t, true).to_string()))
                 .collect::<Vec<_>>(),
         )?;
         match result {
@@ -128,23 +131,29 @@ impl<'a> State<'a> {
             .collect()
     }
 
-    pub fn table_task<'s>(&'s self, task: &'s Tree<Task>) -> TableTask<'s> {
+    pub fn table_task<'s>(&'s self, task: &'s Tree<Task>, show_id: bool) -> TableTask<'s> {
         TableTask(
             task,
             self.project(task),
             self.section(task),
             self.labels(task),
             self.config,
+            show_id,
         )
     }
 
-    pub fn table_task_without_project<'s>(&'s self, task: &'s Tree<Task>) -> TableTask<'s> {
+    pub fn table_task_without_project<'s>(
+        &'s self,
+        task: &'s Tree<Task>,
+        show_id: bool,
+    ) -> TableTask<'s> {
         TableTask(
             task,
             None, // No project info to avoid duplication in grouped view
             self.section(task),
             self.labels(task),
             self.config,
+            show_id,
         )
     }
 

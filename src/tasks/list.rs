@@ -45,6 +45,9 @@ pub struct Params {
     /// Group tasks by specific criteria.
     #[arg(long = "group-by", value_enum)]
     group_by: Option<GroupBy>,
+    /// Show task IDs in the output.
+    #[arg(long = "show-id")]
+    show_id: bool,
 }
 
 #[derive(clap::ValueEnum, Clone, Debug)]
@@ -88,9 +91,19 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
         }
     } else {
         if let Some(GroupBy::Project) = params.group_by {
-            list_tasks_grouped_by_project(&state.tasks, &state, params.sort_by.as_ref());
+            list_tasks_grouped_by_project(
+                &state.tasks,
+                &state,
+                params.sort_by.as_ref(),
+                params.show_id,
+            );
         } else {
-            list_tasks_with_sort(&state.tasks, &state, params.sort_by.as_ref());
+            list_tasks_with_sort(
+                &state.tasks,
+                &state,
+                params.sort_by.as_ref(),
+                params.show_id,
+            );
         }
     }
     Ok(())
@@ -218,6 +231,7 @@ pub fn list_tasks_grouped_by_project<'a>(
     tasks: &'a [Tree<Task>],
     state: &'a State,
     sort_by: Option<&SortBy>,
+    show_id: bool,
 ) {
     // Group tasks by project
     let mut project_groups: HashMap<ProjectID, Vec<&Tree<Task>>> = HashMap::new();
@@ -264,7 +278,7 @@ pub fn list_tasks_grouped_by_project<'a>(
 
         // Display tasks without project name
         for task in project_tasks {
-            println!("  {}", state.table_task_without_project(task));
+            println!("  {}", state.table_task_without_project(task, show_id));
         }
     }
 }
@@ -315,6 +329,7 @@ pub fn list_tasks_with_sort<'a>(
     tasks: &'a [Tree<Task>],
     state: &'a State,
     sort_by: Option<&SortBy>,
+    show_id: bool,
 ) {
     let mut tasks = tasks.to_vec();
 
@@ -354,8 +369,8 @@ pub fn list_tasks_with_sort<'a>(
     }
 
     for task in tasks.iter() {
-        println!("{}", state.table_task(task));
-        list_tasks_with_sort(&task.subitems, state, sort_by);
+        println!("{}", state.table_task(task, show_id));
+        list_tasks_with_sort(&task.subitems, state, sort_by, show_id);
     }
 }
 

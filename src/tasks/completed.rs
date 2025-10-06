@@ -66,6 +66,10 @@ pub struct Params {
     /// Use due date instead of completion date for filtering (supports up to 6 weeks instead of 3 months)
     #[arg(long = "by-due-date")]
     by_due_date: bool,
+
+    /// Show task IDs in the output.
+    #[arg(long = "show-id")]
+    show_id: bool,
 }
 
 /// Lists completed tasks by completion date (default, up to 3 months) or due date (--by-due-date, up to 6 weeks).
@@ -161,7 +165,7 @@ pub async fn completed(params: Params, gw: &Gateway, cfg: &Config) -> Result<()>
     }
 
     // Display tasks
-    display_completed_tasks(&all_tasks, &params.group_by, gw, cfg).await?;
+    display_completed_tasks(&all_tasks, &params.group_by, params.show_id, gw, cfg).await?;
 
     println!(
         "\n{} Total: {} completed tasks",
@@ -278,6 +282,7 @@ fn validate_date_range(since: &str, until: &str, max_weeks: i64) -> Result<()> {
 async fn display_completed_tasks(
     tasks: &[crate::api::rest::Task],
     group_by: &Option<GroupBy>,
+    show_id: bool,
     gw: &Gateway,
     cfg: &Config,
 ) -> Result<()> {
@@ -301,9 +306,9 @@ async fn display_completed_tasks(
 
     // Display with grouping if specified
     if let Some(GroupBy::Project) = group_by {
-        super::list::list_tasks_grouped_by_project(&state.tasks, &state, None);
+        super::list::list_tasks_grouped_by_project(&state.tasks, &state, None, show_id);
     } else {
-        super::list::list_tasks_with_sort(&state.tasks, &state, None);
+        super::list::list_tasks_with_sort(&state.tasks, &state, None, show_id);
     }
 
     Ok(())

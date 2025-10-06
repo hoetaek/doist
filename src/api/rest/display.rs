@@ -115,33 +115,39 @@ pub struct TableTask<'a>(
     pub Option<&'a Section>,
     pub Vec<&'a Label>,
     pub &'a Config,
+    pub bool, // show_id
 );
 
 impl TableTask<'_> {
     /// Initializes a TableTask item that only displays data that is directly available from a
     /// [`Task`].
     pub fn from_task<'a>(task: &'a Tree<Task>, config: &'a Config) -> TableTask<'a> {
-        TableTask(task, None, None, vec![], config)
+        TableTask(task, None, None, vec![], config, false)
     }
 }
 
 impl std::fmt::Display for TableTask<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let TableTask::<'_>(task, project, section, labels, config) = self;
+        let TableTask::<'_>(task, project, section, labels, config, show_id) = self;
         let subtask_padding = if task.depth > 0 {
             format!("{}⌞ ", "  ".repeat(task.depth))
         } else {
             "".to_string()
         };
-        write!(
-            f,
-            "{}{} {} {}",
-            subtask_padding,
-            task.id
-                .if_supports_color(Stream::Stdout, |text| text.bright_yellow()),
-            task.priority,
-            task.content,
-        )?;
+
+        if *show_id {
+            write!(
+                f,
+                "{}{} {} {}",
+                subtask_padding,
+                task.id
+                    .if_supports_color(Stream::Stdout, |text| text.bright_yellow()),
+                task.priority,
+                task.content,
+            )?;
+        } else {
+            write!(f, "{}{} {}", subtask_padding, task.priority, task.content,)?;
+        }
 
         // Show task age (days since created)
         let now = config.override_time.unwrap_or_else(Utc::now);
