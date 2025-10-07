@@ -216,7 +216,8 @@ impl std::fmt::Display for TableTask<'_> {
         if let Some(completed_at) = &task.completed_at
             && let Ok(dt) = chrono::DateTime::parse_from_rfc3339(completed_at)
         {
-            let formatted = dt.format("%m/%d %H:%M");
+            let local_dt = dt.with_timezone(&chrono::Local);
+            let formatted = local_dt.format("%m/%d %H:%M");
             write!(
                 f,
                 " {}{}",
