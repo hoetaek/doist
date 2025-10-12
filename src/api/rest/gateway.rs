@@ -20,25 +20,41 @@ use super::{
 
 /// Parameters for fetching completed tasks by due date.
 pub struct CompletedTasksByDueDateParams<'a> {
+    /// Start date (YYYY-MM-DD or ISO 8601 datetime).
     pub since: &'a str,
+    /// End date (YYYY-MM-DD or ISO 8601 datetime).
     pub until: &'a str,
+    /// Filter by project ID.
     pub project_id: Option<&'a str>,
+    /// Filter by section ID.
     pub section_id: Option<&'a str>,
+    /// Filter query (e.g., "#inbox", "today").
     pub filter_query: Option<&'a str>,
+    /// Pagination cursor for fetching next page.
     pub cursor: Option<&'a str>,
+    /// Limit results per page (max: 200).
     pub limit: Option<u32>,
 }
 
 /// Parameters for fetching completed tasks by completion date.
 pub struct CompletedTasksByCompletionDateParams<'a> {
+    /// Start date (YYYY-MM-DD or ISO 8601 datetime).
     pub since: &'a str,
+    /// End date (YYYY-MM-DD or ISO 8601 datetime).
     pub until: &'a str,
+    /// Filter by workspace ID.
     pub workspace_id: Option<&'a str>,
+    /// Filter by project ID.
     pub project_id: Option<&'a str>,
+    /// Filter by section ID.
     pub section_id: Option<&'a str>,
+    /// Filter by parent task ID.
     pub parent_id: Option<&'a str>,
+    /// Filter query (e.g., "#inbox", "today").
     pub filter_query: Option<&'a str>,
+    /// Pagination cursor for fetching next page.
     pub cursor: Option<&'a str>,
+    /// Limit results per page (max: 200).
     pub limit: Option<u32>,
 }
 
