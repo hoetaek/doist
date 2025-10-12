@@ -429,7 +429,7 @@ pub enum TaskDue {
     DateTime(DateTime<Utc>),
 }
 /// Command used with [`super::Gateway::create`] to create a new Task.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct CreateTask {
     /// Sets the [`Task::content`] on the new [`Task`]. (Required)
     pub content: String,
@@ -472,27 +472,6 @@ pub struct CreateTask {
     /// Unit of time for duration.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_unit: Option<DurationUnit>,
-}
-
-impl Default for CreateTask {
-    fn default() -> Self {
-        Self {
-            content: String::new(),
-            description: None,
-            project_id: None,
-            section_id: None,
-            parent_id: None,
-            order: None,
-            labels: None,
-            priority: None,
-            assignee_id: None,
-            due: None,
-            due_lang: None,
-            deadline_date: None,
-            duration: None,
-            duration_unit: None,
-        }
-    }
 }
 
 /// Command used with [`super::Gateway::update`] to update a [`Task`].

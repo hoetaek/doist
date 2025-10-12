@@ -35,7 +35,7 @@ enum Commands {
     /// Authenticated commands are commands that require a token to be set up via the Auth command
     /// before executing.
     #[command(flatten)]
-    Authenticated(AuthCommands),
+    Authenticated(Box<AuthCommands>),
 }
 
 #[derive(Subcommand, Debug)]
@@ -165,7 +165,7 @@ impl Arguments {
                 }
                 Commands::Authenticated(command) => {
                     let gw = cfg.gateway()?;
-                    match command {
+                    match *command {
                         AuthCommands::Add(p) => add::add(p, &gw, &cfg).await?,
                         AuthCommands::Create(p) => create::create(p, &gw, &cfg).await?,
                         AuthCommands::List(p) => list::list(p, &gw, &cfg).await?,
