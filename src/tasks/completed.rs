@@ -19,24 +19,28 @@ pub struct Params {
     #[arg(long = "until")]
     until: Option<String>,
 
+    /// Show tasks completed on a specific date (YYYY-MM-DD)
+    #[arg(long = "date", conflicts_with_all = ["since", "until", "today", "yesterday", "this_week", "last_week", "this_month"])]
+    date: Option<String>,
+
     /// Show tasks completed today
-    #[arg(long = "today", conflicts_with_all = ["since", "until", "yesterday", "this_week", "last_week", "this_month"])]
+    #[arg(long = "today", conflicts_with_all = ["since", "until", "date", "yesterday", "this_week", "last_week", "this_month"])]
     today: bool,
 
     /// Show tasks completed yesterday
-    #[arg(long = "yesterday", conflicts_with_all = ["since", "until", "today", "this_week", "last_week", "this_month"])]
+    #[arg(long = "yesterday", conflicts_with_all = ["since", "until", "date", "today", "this_week", "last_week", "this_month"])]
     yesterday: bool,
 
     /// Show tasks completed this week (Monday to today)
-    #[arg(long = "this-week", conflicts_with_all = ["since", "until", "today", "yesterday", "last_week", "this_month"])]
+    #[arg(long = "this-week", conflicts_with_all = ["since", "until", "date", "today", "yesterday", "last_week", "this_month"])]
     this_week: bool,
 
     /// Show tasks completed last week (Monday to Sunday)
-    #[arg(long = "last-week", conflicts_with_all = ["since", "until", "today", "yesterday", "this_week", "this_month"])]
+    #[arg(long = "last-week", conflicts_with_all = ["since", "until", "date", "today", "yesterday", "this_week", "this_month"])]
     last_week: bool,
 
     /// Show tasks completed this month (1st to today)
-    #[arg(long = "this-month", conflicts_with_all = ["since", "until", "today", "yesterday", "this_week", "last_week"])]
+    #[arg(long = "this-month", conflicts_with_all = ["since", "until", "date", "today", "yesterday", "this_week", "last_week"])]
     this_month: bool,
 
     /// Filter by project
@@ -83,6 +87,9 @@ pub struct Params {
 ///
 /// # Get tasks completed yesterday
 /// doist completed --yesterday
+///
+/// # Get tasks completed on a specific date
+/// doist completed --date 2025-10-10
 ///
 /// # Get tasks completed this week
 /// doist completed --this-week
@@ -184,7 +191,17 @@ fn calculate_date_range(params: &Params) -> Result<(String, String)> {
     let now = Local::now();
     let today = now.date_naive();
 
-    if params.today {
+    if let Some(date_str) = &params.date {
+        // Specific date: 00:00:00 to 23:59:59 in ISO 8601
+        let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d").wrap_err(format!(
+            "Invalid date format: '{}'. Use YYYY-MM-DD",
+            date_str
+        ))?;
+        Ok((
+            format!("{}T00:00:00Z", date.format("%Y-%m-%d")),
+            format!("{}T23:59:59Z", date.format("%Y-%m-%d")),
+        ))
+    } else if params.today {
         // Today: 00:00:00 to 23:59:59 in ISO 8601
         Ok((
             format!("{}T00:00:00Z", today.format("%Y-%m-%d")),
