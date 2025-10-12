@@ -2,7 +2,10 @@ use color_eyre::{Result, eyre::WrapErr};
 use owo_colors::OwoColorize;
 
 use crate::{
-    api::rest::{Gateway, Project, Section},
+    api::rest::{
+        CompletedTasksByCompletionDateParams, CompletedTasksByDueDateParams, Gateway, Project,
+        Section,
+    },
     config::Config,
     interactive,
 };
@@ -121,29 +124,29 @@ pub async fn completed(params: Params, gw: &Gateway, cfg: &Config) -> Result<()>
 
     loop {
         let response = if params.by_due_date {
-            gw.completed_tasks_by_due_date(
-                &since,
-                &until,
-                project_id.as_deref(),
-                section_id.as_deref(),
-                params.filter.as_deref(),
-                cursor.as_deref(),
-                Some(params.limit),
-            )
+            gw.completed_tasks_by_due_date(CompletedTasksByDueDateParams {
+                since: &since,
+                until: &until,
+                project_id: project_id.as_deref(),
+                section_id: section_id.as_deref(),
+                filter_query: params.filter.as_deref(),
+                cursor: cursor.as_deref(),
+                limit: Some(params.limit),
+            })
             .await
             .wrap_err("failed to fetch completed tasks by due date")?
         } else {
-            gw.completed_tasks_by_completion_date(
-                &since,
-                &until,
-                None, // workspace_id
-                project_id.as_deref(),
-                section_id.as_deref(),
-                None, // parent_id
-                params.filter.as_deref(),
-                cursor.as_deref(),
-                Some(params.limit),
-            )
+            gw.completed_tasks_by_completion_date(CompletedTasksByCompletionDateParams {
+                since: &since,
+                until: &until,
+                workspace_id: None,
+                project_id: project_id.as_deref(),
+                section_id: section_id.as_deref(),
+                parent_id: None,
+                filter_query: params.filter.as_deref(),
+                cursor: cursor.as_deref(),
+                limit: Some(params.limit),
+            })
             .await
             .wrap_err("failed to fetch completed tasks by completion date")?
         };

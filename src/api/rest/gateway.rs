@@ -18,6 +18,30 @@ use super::{
     TaskDue, TaskID, UpdateTask,
 };
 
+/// Parameters for fetching completed tasks by due date.
+pub struct CompletedTasksByDueDateParams<'a> {
+    pub since: &'a str,
+    pub until: &'a str,
+    pub project_id: Option<&'a str>,
+    pub section_id: Option<&'a str>,
+    pub filter_query: Option<&'a str>,
+    pub cursor: Option<&'a str>,
+    pub limit: Option<u32>,
+}
+
+/// Parameters for fetching completed tasks by completion date.
+pub struct CompletedTasksByCompletionDateParams<'a> {
+    pub since: &'a str,
+    pub until: &'a str,
+    pub workspace_id: Option<&'a str>,
+    pub project_id: Option<&'a str>,
+    pub section_id: Option<&'a str>,
+    pub parent_id: Option<&'a str>,
+    pub filter_query: Option<&'a str>,
+    pub cursor: Option<&'a str>,
+    pub limit: Option<u32>,
+}
+
 /// Makes network calls to the Todoist API and returns structs that can then be worked with.
 pub struct Gateway {
     client: ClientWithMiddleware,
@@ -77,103 +101,76 @@ impl Gateway {
     }
 
     /// Returns a list of completed tasks by due date range (up to 6 weeks).
-    ///
-    /// * `since` - Start date (ISO 8601 datetime or YYYY-MM-DD)
-    /// * `until` - End date (ISO 8601 datetime or YYYY-MM-DD)
-    /// * `project_id` - Optional project filter
-    /// * `section_id` - Optional section filter
-    /// * `filter_query` - Optional filter query
-    /// * `cursor` - Pagination cursor
-    /// * `limit` - Results per page (default: 50, max: 200)
     pub async fn completed_tasks_by_due_date(
         &self,
-        since: &str,
-        until: &str,
-        project_id: Option<&str>,
-        section_id: Option<&str>,
-        filter_query: Option<&str>,
-        cursor: Option<&str>,
-        limit: Option<u32>,
+        params: CompletedTasksByDueDateParams<'_>,
     ) -> Result<CompletedTasksResponse> {
-        let mut params: Vec<(&str, &str)> = vec![("since", since), ("until", until)];
+        let mut query_params: Vec<(&str, &str)> =
+            vec![("since", params.since), ("until", params.until)];
 
-        if let Some(pid) = project_id {
-            params.push(("project_id", pid));
+        if let Some(pid) = params.project_id {
+            query_params.push(("project_id", pid));
         }
-        if let Some(sid) = section_id {
-            params.push(("section_id", sid));
+        if let Some(sid) = params.section_id {
+            query_params.push(("section_id", sid));
         }
-        if let Some(fq) = filter_query {
-            params.push(("filter_query", fq));
+        if let Some(fq) = params.filter_query {
+            query_params.push(("filter_query", fq));
         }
-        if let Some(c) = cursor {
-            params.push(("cursor", c));
+        if let Some(c) = params.cursor {
+            query_params.push(("cursor", c));
         }
 
         let limit_str;
-        if let Some(l) = limit {
+        if let Some(l) = params.limit {
             limit_str = l.to_string();
-            params.push(("limit", &limit_str));
+            query_params.push(("limit", &limit_str));
         }
 
-        self.get("api/v1/tasks/completed/by_due_date", Some(&params))
+        self.get("api/v1/tasks/completed/by_due_date", Some(&query_params))
             .await
             .wrap_err("unable to get completed tasks")
     }
 
     /// Returns a list of completed tasks by completion date range (up to 3 months).
-    ///
-    /// * `since` - Start date (ISO 8601 datetime or YYYY-MM-DD)
-    /// * `until` - End date (ISO 8601 datetime or YYYY-MM-DD)
-    /// * `workspace_id` - Optional workspace filter
-    /// * `project_id` - Optional project filter
-    /// * `section_id` - Optional section filter
-    /// * `parent_id` - Optional parent task filter
-    /// * `filter_query` - Optional filter query
-    /// * `cursor` - Pagination cursor
-    /// * `limit` - Results per page (default: 50, max: 200)
     pub async fn completed_tasks_by_completion_date(
         &self,
-        since: &str,
-        until: &str,
-        workspace_id: Option<&str>,
-        project_id: Option<&str>,
-        section_id: Option<&str>,
-        parent_id: Option<&str>,
-        filter_query: Option<&str>,
-        cursor: Option<&str>,
-        limit: Option<u32>,
+        params: CompletedTasksByCompletionDateParams<'_>,
     ) -> Result<CompletedTasksResponse> {
-        let mut params: Vec<(&str, &str)> = vec![("since", since), ("until", until)];
+        let mut query_params: Vec<(&str, &str)> =
+            vec![("since", params.since), ("until", params.until)];
 
-        if let Some(wid) = workspace_id {
-            params.push(("workspace_id", wid));
+        if let Some(wid) = params.workspace_id {
+            query_params.push(("workspace_id", wid));
         }
-        if let Some(pid) = project_id {
-            params.push(("project_id", pid));
+        if let Some(pid) = params.project_id {
+            query_params.push(("project_id", pid));
         }
-        if let Some(sid) = section_id {
-            params.push(("section_id", sid));
+        if let Some(sid) = params.section_id {
+            query_params.push(("section_id", sid));
         }
-        if let Some(parent) = parent_id {
-            params.push(("parent_id", parent));
+        if let Some(parent) = params.parent_id {
+            query_params.push(("parent_id", parent));
         }
-        if let Some(fq) = filter_query {
-            params.push(("filter_query", fq));
+        if let Some(fq) = params.filter_query {
+            query_params.push(("filter_query", fq));
         }
-        if let Some(c) = cursor {
-            params.push(("cursor", c));
+        if let Some(c) = params.cursor {
+            query_params.push(("cursor", c));
         }
 
         let limit_str;
-        if let Some(l) = limit {
+        if let Some(l) = params.limit {
             limit_str = l.to_string();
-            params.push(("limit", &limit_str));
+            query_params.push(("limit", &limit_str));
         }
 
-        self.get("api/v1/tasks/completed/by_completion_date", Some(&params))
-            .await
-            .wrap_err("unable to get completed tasks by completion date")
+        self.get(
+            "api/v1/tasks/completed/by_completion_date",
+            Some(&query_params),
+        )
+        .await
+        .wrap_err("unable to get completed tasks by completion date")
     }
 
     /// Closes a task.
@@ -930,7 +927,15 @@ mod test {
 
         let gw = gateway("", &mock_server);
         let response = gw
-            .completed_tasks_by_due_date("2025-09-01", "2025-10-06", None, None, None, None, None)
+            .completed_tasks_by_due_date(CompletedTasksByDueDateParams {
+                since: "2025-09-01",
+                until: "2025-10-06",
+                project_id: None,
+                section_id: None,
+                filter_query: None,
+                cursor: None,
+                limit: None,
+            })
             .await
             .unwrap();
 
@@ -962,17 +967,17 @@ mod test {
 
         let gw = gateway("", &mock_server);
         let response = gw
-            .completed_tasks_by_completion_date(
-                "2025-10-01",
-                "2025-10-06",
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
+            .completed_tasks_by_completion_date(CompletedTasksByCompletionDateParams {
+                since: "2025-10-01",
+                until: "2025-10-06",
+                workspace_id: None,
+                project_id: None,
+                section_id: None,
+                parent_id: None,
+                filter_query: None,
+                cursor: None,
+                limit: None,
+            })
             .await
             .unwrap();
 
