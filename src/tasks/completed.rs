@@ -200,37 +200,38 @@ fn calculate_date_range(params: &Params) -> Result<(String, String)> {
 
     let now = Local::now();
     let today = now.date_naive();
+    let offset = now.format("%:z").to_string();
 
     if let Some(date_str) = &params.date {
-        // Specific date: 00:00:00 to 23:59:59 in ISO 8601
+        // Specific date: 00:00:00 to 23:59:59 in local timezone
         let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d").wrap_err(format!(
             "Invalid date format: '{}'. Use YYYY-MM-DD",
             date_str
         ))?;
         Ok((
-            format!("{}T00:00:00Z", date.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", date.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", date.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", date.format("%Y-%m-%d"), offset),
         ))
     } else if params.today {
-        // Today: 00:00:00 to 23:59:59 in ISO 8601
+        // Today: 00:00:00 to 23:59:59 in local timezone
         Ok((
-            format!("{}T00:00:00Z", today.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", today.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", today.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", today.format("%Y-%m-%d"), offset),
         ))
     } else if params.yesterday {
-        // Yesterday: 00:00:00 to 23:59:59 in ISO 8601
+        // Yesterday: 00:00:00 to 23:59:59 in local timezone
         let yesterday = today - Duration::days(1);
         Ok((
-            format!("{}T00:00:00Z", yesterday.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", yesterday.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", yesterday.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", yesterday.format("%Y-%m-%d"), offset),
         ))
     } else if params.this_week {
         // This week: Monday 00:00:00 to today 23:59:59
         let days_from_monday = today.weekday().num_days_from_monday() as i64;
         let monday = today - Duration::days(days_from_monday);
         Ok((
-            format!("{}T00:00:00Z", monday.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", today.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", monday.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", today.format("%Y-%m-%d"), offset),
         ))
     } else if params.last_week {
         // Last week: Monday to Sunday
@@ -238,16 +239,16 @@ fn calculate_date_range(params: &Params) -> Result<(String, String)> {
         let last_sunday = today - Duration::days(days_from_monday + 1);
         let last_monday = last_sunday - Duration::days(6);
         Ok((
-            format!("{}T00:00:00Z", last_monday.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", last_sunday.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", last_monday.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", last_sunday.format("%Y-%m-%d"), offset),
         ))
     } else if params.this_month {
         // This month: 1st to today
         let first_of_month = NaiveDate::from_ymd_opt(today.year(), today.month(), 1)
             .ok_or_else(|| color_eyre::eyre::eyre!("Failed to calculate first day of month"))?;
         Ok((
-            format!("{}T00:00:00Z", first_of_month.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", today.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", first_of_month.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", today.format("%Y-%m-%d"), offset),
         ))
     } else if let (Some(since), Some(until)) = (&params.since, &params.until) {
         // Use provided dates
@@ -255,8 +256,8 @@ fn calculate_date_range(params: &Params) -> Result<(String, String)> {
     } else {
         // Default: today
         Ok((
-            format!("{}T00:00:00Z", today.format("%Y-%m-%d")),
-            format!("{}T23:59:59Z", today.format("%Y-%m-%d")),
+            format!("{}T00:00:00{}", today.format("%Y-%m-%d"), offset),
+            format!("{}T23:59:59{}", today.format("%Y-%m-%d"), offset),
         ))
     }
 }
