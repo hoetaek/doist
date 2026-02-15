@@ -54,6 +54,7 @@ Tests use wiremock for API mocking and fixtures in `tests/commands/fixtures/`. T
 ### Core Components
 
 **API Layer (`src/api/`)**
+- Uses **Todoist Unified API v1** (base: `https://api.todoist.com/api/v1/`), NOT the deprecated REST API v2 (`/rest/v2/`)
 - `rest/gateway.rs` - HTTP client with retry logic and auth handling
 - `rest/` modules - Data models and API endpoints for each resource type
 - `serialize.rs` - Custom serialization logic for API responses
