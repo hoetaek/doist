@@ -117,3 +117,7 @@ Tests are organized in `tests/commands/` with:
 3. Commands parse arguments and call appropriate handlers
 4. Handlers use Gateway for API calls
 5. Results formatted and displayed with color/interactive options
+
+## Git Conventions
+
+- **Co-Authored-By 절대 금지**: 커밋 메시지에 `Co-Authored-By` 라인을 추가하지 않는다.
