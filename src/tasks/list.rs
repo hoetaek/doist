@@ -82,7 +82,7 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
         State::fetch_tree(Some(&params.filter.select(cfg)), gw, cfg).await
     }?;
     let state = filter_list(state, params).await?;
-    let show_id = params.show_id;
+    let show_id = params.show_id || cfg.show_id;
     if params.interactive {
         match state.select_task()? {
             Some(task) => select_task_option(task, &state, gw).await?,

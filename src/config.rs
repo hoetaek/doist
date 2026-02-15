@@ -28,6 +28,9 @@ pub struct Config {
     /// Override the current time for various display options in the CLI.
     #[serde(default)]
     pub override_time: Option<DateTime<Utc>>,
+    /// When set to true, task IDs are shown by default in list and completed output.
+    #[serde(default)]
+    pub show_id: bool,
 
     /// Sets a particular config location prefix. Mostly used for testing.
     #[serde(skip)]
