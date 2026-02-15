@@ -391,6 +391,7 @@ async fn select_task_option<'a>(
                 close::Params {
                     task: task.id.clone().into(),
                     complete: false,
+                    no_interactive: false,
                 },
                 gw,
                 state.config,
@@ -402,6 +403,7 @@ async fn select_task_option<'a>(
                 close::Params {
                     task: task.id.clone().into(),
                     complete: true,
+                    no_interactive: false,
                 },
                 gw,
                 state.config,

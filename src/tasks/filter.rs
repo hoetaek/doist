@@ -46,6 +46,10 @@ impl TaskOrInteractive {
             filter: Filter::new(None),
         }
     }
+    pub fn has_id(&self) -> bool {
+        self.id.is_some()
+    }
+
     pub async fn task_id(&self, gw: &Gateway, cfg: &Config) -> Result<TaskID> {
         let (id, _) = self.task(gw, cfg).await?;
         Ok(id)

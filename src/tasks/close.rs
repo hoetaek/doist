@@ -17,9 +17,17 @@ pub struct Params {
     /// of the task to "today" and then close it.
     #[arg(short = 'c', long = "complete")]
     pub complete: bool,
+    /// Errors if no task ID is provided instead of entering interactive mode.
+    #[arg(long = "no-interactive")]
+    pub no_interactive: bool,
 }
 
 pub async fn close(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
+    if params.no_interactive && !params.task.has_id() {
+        return Err(color_eyre::eyre::eyre!(
+            "No task ID provided. Use a task ID or remove --no-interactive to select interactively."
+        ));
+    }
     let id = params
         .task
         .task_id(gw, cfg)
