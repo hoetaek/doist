@@ -8,7 +8,7 @@ use crate::{
     config::Config,
     interactive, labels,
     tasks::{
-        close, edit, filter,
+        close, delete, edit, filter,
         state::{State, TaskMenu},
     },
 };
@@ -82,6 +82,7 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
         State::fetch_tree(Some(&params.filter.select(cfg)), gw, cfg).await
     }?;
     let state = filter_list(state, params).await?;
+    let show_id = params.show_id;
     if params.interactive {
         match state.select_task()? {
             Some(task) => select_task_option(task, &state, gw).await?,
@@ -90,19 +91,9 @@ async fn list_action(params: &Params, gw: &Gateway, cfg: &Config) -> Result<()> 
             }
         }
     } else if let Some(GroupBy::Project) = params.group_by {
-        list_tasks_grouped_by_project(
-            &state.tasks,
-            &state,
-            params.sort_by.as_ref(),
-            params.show_id,
-        );
+        list_tasks_grouped_by_project(&state.tasks, &state, params.sort_by.as_ref(), show_id);
     } else {
-        list_tasks_with_sort(
-            &state.tasks,
-            &state,
-            params.sort_by.as_ref(),
-            params.show_id,
-        );
+        list_tasks_with_sort(&state.tasks, &state, params.sort_by.as_ref(), show_id);
     }
     Ok(())
 }
@@ -377,6 +368,7 @@ enum TaskOptions {
     Close,
     Complete,
     Edit,
+    Delete,
     Quit,
 }
 
@@ -417,6 +409,17 @@ async fn select_task_option<'a>(
             .await?
         }
         TaskOptions::Edit => edit_task(task, gw, state.config).await?,
+        TaskOptions::Delete => {
+            delete::delete(
+                delete::Params {
+                    task: task.id.clone().into(),
+                    force: false,
+                },
+                gw,
+                state.config,
+            )
+            .await?
+        }
         TaskOptions::Quit => {}
     };
     Ok(())

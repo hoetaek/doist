@@ -303,6 +303,13 @@ impl Gateway {
             .ok_or_else(|| eyre!("unable to create project"))
     }
 
+    /// Deletes a task permanently by calling the Todoist API.
+    pub async fn delete_task(&self, id: &TaskID) -> Result<()> {
+        self.delete(&format!("api/v1/tasks/{id}"))
+            .await
+            .wrap_err("unable to delete task")
+    }
+
     /// Deletes a project by calling the Todoist API.
     pub async fn delete_project(&self, project: &ProjectID) -> Result<()> {
         self.delete(&format!("api/v1/projects/{project}"))
@@ -812,6 +819,19 @@ mod test {
             .unwrap();
         mock_server.verify().await;
         assert_eq!(label.id, "123");
+    }
+
+    #[tokio::test]
+    async fn delete_task() {
+        let mock_server = MockServer::start().await;
+        Mock::given(method("DELETE"))
+            .and(path("/api/v1/tasks/123"))
+            .respond_with(ResponseTemplate::new(204))
+            .mount(&mock_server)
+            .await;
+        let gw = gateway("", &mock_server);
+        let result = gw.delete_task(&"123".to_string()).await;
+        assert!(result.is_ok());
     }
 
     #[tokio::test]

@@ -54,6 +54,7 @@ Tests use wiremock for API mocking and fixtures in `tests/commands/fixtures/`. T
 ### Core Components
 
 **API Layer (`src/api/`)**
+- Uses **Todoist Unified API v1** (base: `https://api.todoist.com/api/v1/`), NOT the deprecated REST API v2 (`/rest/v2/`)
 - `rest/gateway.rs` - HTTP client with retry logic and auth handling
 - `rest/` modules - Data models and API endpoints for each resource type
 - `serialize.rs` - Custom serialization logic for API responses
@@ -116,3 +117,7 @@ Tests are organized in `tests/commands/` with:
 3. Commands parse arguments and call appropriate handlers
 4. Handlers use Gateway for API calls
 5. Results formatted and displayed with color/interactive options
+
+## Git Conventions
+
+- **Co-Authored-By 절대 금지**: 커밋 메시지에 `Co-Authored-By` 라인을 추가하지 않는다.

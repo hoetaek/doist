@@ -4,6 +4,7 @@ pub mod close;
 pub mod comment;
 pub mod completed;
 pub mod create;
+pub mod delete;
 pub mod edit;
 mod filter;
 pub mod list;
