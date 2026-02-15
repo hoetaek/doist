@@ -175,7 +175,14 @@ pub async fn completed(params: Params, gw: &Gateway, cfg: &Config) -> Result<()>
     }
 
     // Display tasks
-    display_completed_tasks(&all_tasks, &params.group_by, params.show_id, gw, cfg).await?;
+    display_completed_tasks(
+        &all_tasks,
+        &params.group_by,
+        params.show_id || cfg.show_id,
+        gw,
+        cfg,
+    )
+    .await?;
 
     println!(
         "\n{} Total: {} completed tasks",
