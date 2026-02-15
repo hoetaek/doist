@@ -233,6 +233,39 @@ impl Gateway {
         Ok(())
     }
 
+    /// Moves a task to a different project and/or section via the Sync API.
+    pub async fn move_task(
+        &self,
+        id: &TaskID,
+        project_id: Option<&ProjectID>,
+        section_id: Option<&SectionID>,
+    ) -> Result<()> {
+        let mut args = serde_json::Map::new();
+        args.insert("id".into(), serde_json::Value::String(id.clone()));
+        if let Some(pid) = project_id {
+            args.insert("project_id".into(), serde_json::Value::String(pid.clone()));
+        }
+        if let Some(sid) = section_id {
+            args.insert("section_id".into(), serde_json::Value::String(sid.clone()));
+        }
+        let commands = serde_json::json!([{
+            "type": "item_move",
+            "uuid": Uuid::new_v4().to_string(),
+            "args": args,
+        }]);
+        let body = serde_json::json!({ "commands": commands });
+        handle_req::<serde_json::Value>(
+            self.client
+                .post(self.url.join("api/v1/sync")?)
+                .bearer_auth(&self.token)
+                .header(reqwest::header::CONTENT_TYPE, "application/json")
+                .body(serde_json::to_string(&body)?),
+        )
+        .await
+        .wrap_err("unable to move task")?;
+        Ok(())
+    }
+
     /// Returns the list of Projects.
     pub async fn projects(&self) -> Result<Vec<Project>> {
         let response: PaginatedResponse<Project> = self

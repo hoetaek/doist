@@ -3,9 +3,10 @@ use color_eyre::Result;
 use crate::{
     api::{
         self,
-        rest::{DurationUnit, Gateway, TaskDue, UpdateTask},
+        rest::{DurationUnit, Gateway, Project, Section, TaskDue, UpdateTask},
     },
     config::Config,
+    interactive,
     labels::{self, LabelSelect},
     tasks::{Priority, filter::TaskOrInteractive},
 };
@@ -33,6 +34,12 @@ pub struct Params {
     pub duration: Option<String>,
     #[clap(flatten)]
     pub labels: LabelSelect,
+    /// Move task to a different project.
+    #[clap(flatten)]
+    pub project: interactive::Selection<Project>,
+    /// Move task to a different section.
+    #[clap(flatten)]
+    pub section: interactive::Selection<Section>,
 }
 
 impl Params {
@@ -46,6 +53,8 @@ impl Params {
             deadline: None,
             duration: None,
             labels: LabelSelect::default(),
+            project: Default::default(),
+            section: Default::default(),
         }
     }
 }
@@ -117,6 +126,27 @@ pub async fn edit(params: Params, gw: &Gateway, cfg: &Config) -> Result<()> {
             ));
         }
     }
-    gw.update(&params.task.task_id(gw, cfg).await?, &update)
-        .await
+    // Resolve project and section selections
+    let projects = gw.projects().await?;
+    let sections = gw.sections().await?;
+    let move_project = params.project.optional(&projects)?.map(|p| p.id.clone());
+    let move_section = params.section.optional(&sections)?.map(|s| s.id.clone());
+
+    let task_id = params.task.task_id(gw, cfg).await?;
+    let has_update = update.content.is_some()
+        || update.description.is_some()
+        || update.priority.is_some()
+        || update.labels.is_some()
+        || update.due.is_some()
+        || update.deadline_date.is_some()
+        || update.duration.is_some();
+    if has_update {
+        gw.update(&task_id, &update).await?;
+    }
+
+    if move_project.is_some() || move_section.is_some() {
+        gw.move_task(&task_id, move_project.as_ref(), move_section.as_ref())
+            .await?;
+    }
+    Ok(())
 }

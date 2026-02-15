@@ -9,10 +9,19 @@ use crate::api::rest::{
 };
 use color_eyre::{Result, eyre::WrapErr, eyre::eyre};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Selection<T: FuzzSelect> {
     name: Option<String>,
     id: Option<T::ID>,
+}
+
+impl<T: FuzzSelect> Default for Selection<T> {
+    fn default() -> Self {
+        Self {
+            name: None,
+            id: None,
+        }
+    }
 }
 
 macro_rules! selection {
